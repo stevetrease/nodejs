@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>
+Power used today
+</title>
+</head>
+<body style="font-family:Verdana;">
+
+<div id=currentcost.power.total_today></div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
+<script>
+	var socket = io.connect("http://www.trease.eu:8500");
+	socket.on('data', function(data){ 
+       		// console.log("channel : %s, value : %s", data.channel, data.value);
+		document.getElementById(data.channel).innerHTML= data.value;
+	});
+</script>
+</body>
+</html>
+

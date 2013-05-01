@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tail</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body
+      { color: #1a2c37;
+        font-family: 'Helvetica', sans-serif; font-size: 86%;
+        padding: 2em; }
+    #info
+      { font-size: 120%;
+        font-weight: bold; }
+    #tail1
+      { border: 2px solid #ccc;
+        height: 300px;
+        padding: 0.5em;
+        overflow: hidden;
+        position: relative;
+        overflow-y: scroll; }
+    #tail2
+      { border: 2px solid #ccc;
+        height: 300px;
+        padding: 0.5em;
+        overflow: hidden;
+        position: static;
+        overflow-y: scroll; }
+  </style>
+
+</head>
+<body>
+  <pre id="info"></pre>
+  <pre id="tail1"></pre>
+  <pre id="tail2"></pre>
+
+  <script>
+
+  var Application = function() {
+    
+    var socket  = io.connect(null, {port: 8000});
+
+    var lines = 0;
+
+    socket.on('connect', function() {
+      console.log('Connected to:', socket.host);
+    });
+    socket.on('message', function(message) {
+      console.log('Received message:', message);
+      if (message.filename) {
+        $('#info').html( '$ tail -f ' + message.filename );
+      };
+      if (message.tail1) {
+        $('#tail1').html( $('#tail1').html() + message.tail1 );
+        lines++
+        $('#tail1').scrollTop(lines*100)
+      }
+      if (message.tail2) {
+        $('#tail2').html( $('#tail2').html() + message.tail2 );
+        lines++
+        $('#tail2').scrollTop(lines*100)
+      }
+    });
+    
+    return {
+      socket : socket
+    };
+  };
+ 
+  $(function() { var app = Application(); });
+
+  </script>
+
+</body>
+</html>

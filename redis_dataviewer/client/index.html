@@ -1,0 +1,36 @@
+<html>
+<head>
+<title>
+Realtime Currentcost data
+</title>
+<style type="text/css">
+	table.myTable { border-collapse:separate; }
+	table.myTable td, table.myTable th { border:1px solid black;padding:4px; }
+</style>
+</head>
+<body style="font-family:arial;">
+
+
+<table class="myTable">
+<tr><td>Total</td><td id=currentcost.power.0></td><td id=currentcost.power.0.time></td></tr>
+<tr><td>Server</td><td id=currentcost.power.2></td><td id=currentcost.power.2.time></td></tr>
+<tr><td>Steve's PC</td><td id=currentcost.power.3></td><td id=currentcost.power.3.time></td></tr>
+<tr><td>Julie's PC</td><td id=currentcost.power.4></td><td id=currentcost.power.4.time></td></tr>
+<tr><td>Little lounge</td><td id=currentcost.power.5></td><td id=currentcost.power.5.time></td></tr>
+<tr><td>Kitchen</td><td id=currentcost.power.6></td><td id=currentcost.power.6.time></td></tr>
+<tr><td>Lounge</td><td id=currentcost.power.7></td><td id=currentcost.power.7.time></td></tr>
+</table>
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://www.trease.eu:1337/socket.io/socket.io.js"></script>
+<script>
+	var socket = io.connect("http://www.trease.eu:1337");
+	socket.on('data', function(data){ 
+       		// console.log("channel : %s, value : %s", data.channel, data.value);
+		document.getElementById(data.channel).innerHTML= data.value;
+	});
+</script>
+</body>
+</html>
+

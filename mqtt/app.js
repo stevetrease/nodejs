@@ -1,14 +1,8 @@
 var app = require('http').createServer(handler),
    io = require('socket.io').listen(app),
-  fs = require('fs')
-
-
-
-
-
+   fs = require('fs')
 
 app.listen(8500);
-
 
 function handler (req, res) {
 	console.log('Connection from %j', req.connection.remoteAddress);
@@ -25,7 +19,6 @@ function handler (req, res) {
 
 
 io.sockets.on('connection', function (socket) {
-
 	var mqtt = require('mqtt');
 	var client = mqtt.createClient(1883, 'localhost', function(err, client) {
   		keepalive: 10000
@@ -39,6 +32,5 @@ io.sockets.on('connection', function (socket) {
   			socket.emit('data', { channel: 0, value: message });
   		});
 	});
-
 });
 

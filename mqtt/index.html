@@ -1,21 +1,39 @@
 <html>
 <head>
 <title>
-Power used today
+Charlestown Power
 </title>
 </head>
 <body style="font-family:Verdana;">
 
+<div id=time></div>
 <div id=power></div>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
 <script>
+	ElementExists = function(id) {
+    		return !!document.getElementById(id);
+	};
+	
+
 	var socket = io.connect("http://192.168.1.103:8500");
 	socket.on('data', function(data){ 
-       		console.log("channel : %s, value : %s", data.channel, data.value);
-		document.getElementById("power").innerHTML= data.value;
+       		console.log("topic : %s, value : %s", data.topic, data.value);
+
+		// check if the element exists, if not create it and then set value
+		if (!ElementExists ("power" + data.topic)) {
+			var ni = document.getElementById('power');
+			var newdiv = document.createElement('div');
+			newdiv.setAttribute('id',"power" + data.topic);
+			ni.appendChild(newdiv);
+		}
+		document.getElementById("power" + data.topic).innerHTML= data.value;
+
+			var dt = new Date(); 
+		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
 	});
 </script>
 </body>
 </html>
+

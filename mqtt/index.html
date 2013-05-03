@@ -6,32 +6,47 @@ Charlestown Power
 </head>
 <body style="font-family:Verdana;">
 
-<div id=time></div>
-<div id=power></div>
+<table id="myTable" border="1"></table>
+<canvas id="mycanvas" width="500" height="100"></canvas>
+<P>
+<div id="time"></div>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://github.com/joewalnes/smoothie/raw/master/smoothie.js"></script>
 <script>
 	ElementExists = function(id) {
     		return !!document.getElementById(id);
 	};
-	
+
+
+	var smoothie = new SmoothieChart({millisPerPixel: 500});
+	var line1 = new TimeSeries();
+	smoothie.streamTo(document.getElementById("mycanvas"));
+	smoothie.addTimeSeries(line1);
 
 	var socket = io.connect("http://192.168.1.103:8500");
 	socket.on('data', function(data){ 
-       		console.log("topic : %s, value : %s", data.topic, data.value);
-
-		// check if the element exists, if not create it and then set value
-		if (!ElementExists ("power" + data.topic)) {
-			var ni = document.getElementById('power');
-			var newdiv = document.createElement('div');
-			newdiv.setAttribute('id',"power" + data.topic);
-			ni.appendChild(newdiv);
+		// check if the table cells exists, if not create it and then set value
+		if (!ElementExists ("myTablePower" + data.topic)) {
+			var table=document.getElementById("myTable");
+			var row=table.insertRow(0);
+			var cell=row.insertCell(0);
+			cell.id = "myTablePower" + data.topic;
+			var cell=row.insertCell(0);
+			cell.id = "myTableTopic" + data.topic;
 		}
-		document.getElementById("power" + data.topic).innerHTML= data.value;
+		document.getElementById("myTablePower" + data.topic).innerHTML= data.value;
+		document.getElementById("myTableTopic" + data.topic).innerHTML= data.topic;
 
-			var dt = new Date(); 
+		// print the time the refresh happened
+		var dt = new Date(); 
 		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
+	
+		// if data topic is 0 it is the over power consumption
+	 	if (data.topic == "sensors/power/0") {	
+			line1.append (new Date().getTime(), data.value);
+		}
 	});
 </script>
 </body>

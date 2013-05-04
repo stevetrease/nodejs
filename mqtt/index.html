@@ -18,9 +18,12 @@ Charlestown Power
 <table id="myTableTemp" border="1"></table>
 </td>
 </tr></table>
+<P>
+Total power consumed since start <div id="powercumulative"></div>
+<P>
 <canvas id="mycanvas" width="500" height="100"></canvas>
 <P>
-<div id="time"></div>
+<div id="time" style="font-size:x-small"></div>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
@@ -63,6 +66,13 @@ Charlestown Power
 				line1.append (new Date().getTime(), data.value);
 			}
 		} 
+
+		var topictag = "powercumulative";
+		if (data.topic.substring(0,topictag.length) == topictag) {
+			console.log("Powercumulative - " + data.value);
+			document.getElementById("powercumulative").innerHTML= data.value;
+			
+		}
 
 		var topictag = "sensors/temperature/";
 		if (data.topic.substring(0,topictag.length) == topictag) {

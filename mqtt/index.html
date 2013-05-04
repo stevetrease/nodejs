@@ -6,7 +6,18 @@ Charlestown Power
 </head>
 <body style="font-family:Verdana;">
 
-<table id="myTable" border="1"></table>
+<table><tr>
+<td>
+<table id="myTablePower" border="1"><tr>
+<td id="myTablePowerTopicsensors/power/0">Total power</td>
+<td id="myTablePowerPowersensors/power/0"></td>
+</tr>
+</table>
+</td>
+<td>
+<table id="myTableTemp" border="1"></table>
+</td>
+</tr></table>
 <canvas id="mycanvas" width="500" height="100"></canvas>
 <P>
 <div id="time"></div>
@@ -18,6 +29,9 @@ Charlestown Power
 	ElementExists = function(id) {
     		return !!document.getElementById(id);
 	};
+	BeginsWith = function(needle, haystack){
+		return (haystack.substr(0, needle.length) == needle);
+	}
 
 
 	var smoothie = new SmoothieChart({millisPerPixel: 500});
@@ -26,27 +40,55 @@ Charlestown Power
 	smoothie.addTimeSeries(line1);
 
 	var socket = io.connect("http://192.168.1.103:8500");
-	socket.on('data', function(data){ 
-		// check if the table cells exists, if not create it and then set value
-		if (!ElementExists ("myTablePower" + data.topic)) {
-			var table=document.getElementById("myTable");
-			var row=table.insertRow(0);
-			var cell=row.insertCell(0);
-			cell.id = "myTablePower" + data.topic;
-			var cell=row.insertCell(0);
-			cell.id = "myTableTopic" + data.topic;
-		}
-		document.getElementById("myTablePower" + data.topic).innerHTML= data.value;
-		document.getElementById("myTableTopic" + data.topic).innerHTML= data.topic;
+	socket.on('data', function(data) { 
+
+		var topictag = "sensors/power/";
+		if (data.topic.substring(0,topictag.length) == topictag) {
+			console.log("Power match - " + data.topic + "   " + typeof(data.topic));
+			// check if the table cells exists, if not create it and then set value
+			if (!ElementExists ("myTablePowerPower" + data.topic)) {
+				var table=document.getElementById("myTablePower");
+				var row=table.insertRow(1);
+				var cell=row.insertCell(0);
+				cell.id = "myTablePowerPower" + data.topic;
+				document.getElementById("myTablePowerPower" + data.topic).style.textAlign="right";
+				var cell=row.insertCell(0);
+				cell.id = "myTablePowerTopic" + data.topic;
+				document.getElementById("myTablePowerTopic" + data.topic).innerHTML= data.topic;
+			}
+			document.getElementById("myTablePowerPower" + data.topic).innerHTML= data.value;
+
+			// if data topic is 0 it is the overall power consumption, so update the graph
+	 		if (data.topic == "sensors/power/0") {	
+				line1.append (new Date().getTime(), data.value);
+			}
+		} 
+
+		var topictag = "sensors/temperature/";
+		if (data.topic.substring(0,topictag.length) == topictag) {
+			console.log("Temperature match - " + data.topic + "   " + typeof(data.topic));
+			// check if the table cells exists, if not create it and then set value
+			if (!ElementExists ("myTableTempTemp" + data.topic)) {
+				var table=document.getElementById("myTableTemp");
+				var row=table.insertRow(0);
+				var cell=row.insertCell(0);
+				cell.id = "myTableTempTemp" + data.topic;
+				document.getElementById("myTableTempTemp" + data.topic).style.textAlign="right";
+				var cell=row.insertCell(0);
+				cell.id = "myTableTempTopic" + data.topic;
+				document.getElementById("myTableTempTopic" + data.topic).innerHTML= data.topic;
+			}
+			document.getElementById("myTableTempTemp" + data.topic).innerHTML= data.value;
+		} 
+
+
+
+
 
 		// print the time the refresh happened
 		var dt = new Date(); 
 		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
 	
-		// if data topic is 0 it is the over power consumption
-	 	if (data.topic == "sensors/power/0") {	
-			line1.append (new Date().getTime(), data.value);
-		}
 	});
 </script>
 </body>

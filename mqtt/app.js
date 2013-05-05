@@ -1,14 +1,66 @@
-var app = require('http').createServer(handler);
-var io = require('socket.io').listen(app, {
-	'log level': 1
-});
+var express = require('express');
+var app = express()
+  , http = require('http')
+  , server = http.createServer(app)
+  , io = require('socket.io').listen(server, {'log level': 1});
 var fs = require('fs');
-	
-app.listen(8500);
-console.log('listening on port 8500');
 
-// server web pages
-function handler (req, res) {
+
+
+
+var scriptStartDate = new Date();
+
+
+function timeSince(ts){
+    now = new Date();
+    ts = new Date(ts);
+    var delta = now.getTime() - ts.getTime();
+
+    delta = delta/1000; //us to s
+
+    var ps, pm, ph, pd, min, hou, sec, days;
+
+    if(delta<=59){
+        ps = (delta>1) ? "s": "";
+        return delta+" second"+ps
+    }
+
+    if(delta>=60 && delta<=3599){
+        min = Math.floor(delta/60);
+        sec = delta-(min*60);
+        pm = (min>1) ? "s": "";
+        ps = (sec>1) ? "s": "";
+        return min+" minute"+pm+" "+sec+" second"+ps;
+    }
+
+    if(delta>=3600 && delta<=86399){
+        hou = Math.floor(delta/3600);
+        min = Math.floor((delta-(hou*3600))/60);
+        ph = (hou>1) ? "s": "";
+        pm = (min>1) ? "s": "";
+        return hou+" hour"+ph+" "+min+" minute"+pm;
+    } 
+
+    if(delta>=86400){
+        days = Math.floor(delta/86400);
+        hou =  Math.floor((delta-(days*86400))/60);
+        pd = (days>1) ? "s": "";
+        ph = (hou>1) ? "s": "";
+        return delta+" day"+pd+" "+hou+" hour"+ph;
+    }
+
+}
+
+
+app.get('/hello.txt', function(req, res){
+	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
+	res.send('Hello World');
+});
+app.get('/stats', function(req, res){
+	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
+	res.send(timeSince(scriptStartDate));
+});
+app.get('/', function(req, res) {
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
 	fs.readFile(__dirname + '/index.html',
   		function (err, data) {
@@ -19,8 +71,12 @@ function handler (req, res) {
     		res.writeHead(200);
     		res.end(data);
   	});
-}
 
+});
+
+// start the server
+server.listen(8500);
+console.log('listening on port 8500');
 
 
 io.sockets.on('connection', function (socket) {
@@ -47,7 +103,7 @@ client.on('connect', function() {
 			var duration = (powercurrenttime - powerlasttime) / 1000.0;
 			var powerused = parseInt(message, 10) * (duration / 3600.0) / 1000.0; // convert to KWh
 			powercumulative += powerused;
-			console.log("duration ", duration, "powerused ", powerused, "cumulative ", powercumulative);
+			// console.log("duration ", duration, "powerused ", powerused, "cumulative ", powercumulative);
   			io.sockets.emit('data', { topic: "powercumulative", value: powercumulative.toFixed(3) });
 			powerlasttime = powercurrenttime;
 		}

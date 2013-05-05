@@ -47,7 +47,7 @@ Total power consumed since start <div id="powercumulative"></div>
 
 		var topictag = "sensors/power/";
 		if (data.topic.substring(0,topictag.length) == topictag) {
-			console.log("Power match - " + data.topic + "   " + typeof(data.topic));
+			// console.log("Power match - " + data.topic + "   " + typeof(data.topic));
 			// check if the table cells exists, if not create it and then set value
 			if (!ElementExists ("myTablePowerPower" + data.topic)) {
 				var table=document.getElementById("myTablePower");
@@ -69,14 +69,14 @@ Total power consumed since start <div id="powercumulative"></div>
 
 		var topictag = "powercumulative";
 		if (data.topic.substring(0,topictag.length) == topictag) {
-			console.log("Powercumulative - " + data.value);
+			// console.log("Powercumulative - " + data.value);
 			document.getElementById("powercumulative").innerHTML= data.value;
 			
 		}
 
 		var topictag = "sensors/temperature/";
 		if (data.topic.substring(0,topictag.length) == topictag) {
-			console.log("Temperature match - " + data.topic + "   " + typeof(data.topic));
+			// console.log("Temperature match - " + data.topic + "   " + typeof(data.topic));
 			// check if the table cells exists, if not create it and then set value
 			if (!ElementExists ("myTableTempTemp" + data.topic)) {
 				var table=document.getElementById("myTableTemp");
@@ -90,8 +90,6 @@ Total power consumed since start <div id="powercumulative"></div>
 			}
 			document.getElementById("myTableTempTemp" + data.topic).innerHTML= data.value;
 		} 
-
-
 
 
 

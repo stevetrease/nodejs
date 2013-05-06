@@ -1,31 +1,40 @@
+<!DOCTYPE html>
 <html>
 <head>
 <title>
 Charlestown Power
 </title>
+<style>
+body
+{
+background-color:AntiqueWhite;
+}
+table, th, td
+{
+border: 1px solid #CABFAF;
+}
+</style>
 </head>
-<body style="font-family:Verdana;">
-
-<table border="1"><tr>
-<td>
-<table id="myTablePower" border="1"><tr>
-<td id="sensors/power/0">Total power</td>
-<td id="sensors/power/0"></td>
+<body>
+Current total current power consumption <span id="sensors/power/0"></span>
+<table>
+<tr>
+<td><table id="myTablePower"><tr>
 </tr>
 </table>
 </td>
 <td>
-<table id="myTableTemp" border="1"></table>
+<table id="myTableTemp"></table>
 </td>
 <td>
-<table id="myTableHumidity" border="1"></table>
+<table id="myTableHumidity"></table>
 </td>
 </tr></table>
-<table id="myTableNO2" border="1"></table>
-<table id="myTablePressure" border="1"></table>
-<table id="myTableCO" border="1"></table>
+<table id="myTableNO2"></table>
+<table id="myTablePressure"></table>
+<table id="myTableCO"></table>
 <P>
-Total power consumed since start <div id="powercumulative"></div>
+Total power consumed since start <span id="powercumulative"></span>
 <P>
 <canvas id="mycanvas" width="500" height="100"></canvas>
 <P>
@@ -83,11 +92,11 @@ Total power consumed since start <div id="powercumulative"></div>
 
 			var row=table.insertRow(0);
 			var cell=row.insertCell(0);
-			cell.id = data.topic + "name";
-			document.getElementById(data.topic + "name").style.textAlign="right";
-			document.getElementById(data.topic + "name").innerHTML= data.topic;
-			var cell=row.insertCell(0);
 			cell.id = data.topic;
+			var cell=row.insertCell(0);
+			cell.id = data.topic + "name";
+			document.getElementById(data.topic).style.textAlign="right";
+			document.getElementById(data.topic + "name").innerHTML= data.topic;
 		}
 		// new we know there is a target, update it
 		// console.log("Setting target " + data.topic + " to " + data.value);

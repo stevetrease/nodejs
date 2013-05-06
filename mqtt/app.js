@@ -90,7 +90,7 @@ var client = mqtt.createClient(1883, 'localhost', function(err, client) {
 });
 // global variables for tracking cumulative power usage
 var powercumulative = 0;
-var powerlasttime = new Date().getTime(); // UNIX time in ms
+var powerlasttime = new Date(); // UNIX time in ms
 
 client.on('connect', function() {
 	client.subscribe('sensors/+/+');
@@ -99,7 +99,12 @@ client.on('connect', function() {
 		// console.log('topic: ' + topic + ' payload: ' + message);
   		io.sockets.emit('data', { topic: topic, value: message });
  		if (topic == "sensors/power/0") {
-			var powercurrenttime = new Date().getTime();
+			var powercurrenttime = new Date();
+			// Is it now a different day from the last time this block ran?
+			if (powerlasttime.getDate() != powercurrenttime.getDate()) {
+				powerlasttime = 0;
+			}
+			// caluclate cumlative power used in KWh
 			var duration = (powercurrenttime - powerlasttime) / 1000.0;
 			var powerused = parseInt(message, 10) * (duration / 3600.0) / 1000.0; // convert to KWh
 			powercumulative += powerused;

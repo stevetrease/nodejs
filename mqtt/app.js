@@ -56,6 +56,10 @@ app.get('/hello.txt', function(req, res){
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
 	res.send('Hello World');
 });
+app.get('/app.css', function (req, res) {
+	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
+	res.sendfile(__dirname + '/app.css');  
+});
 app.get('/stats', function(req, res){
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
 	res.send(timeSince(scriptStartDate));
@@ -74,6 +78,8 @@ app.get('/', function(req, res) {
 
 });
 
+
+
 // start the server
 server.listen(8500);
 console.log('listening on port 8500');
@@ -89,7 +95,8 @@ var client = mqtt.createClient(1883, 'localhost', function(err, client) {
 		keepalive: 1000
 });
 // global variables for tracking cumulative power usage
-var powercumulative = 0;
+var powercumulativeToday = 0;
+var powercumulativeHour = 0;
 var powerlasttime = new Date(); // UNIX time in ms
 
 client.on('connect', function() {
@@ -102,14 +109,19 @@ client.on('connect', function() {
 			var powercurrenttime = new Date();
 			// Is it now a different day from the last time this block ran?
 			if (powerlasttime.getDate() != powercurrenttime.getDate()) {
-				powerlasttime = 0;
+				powercumulativeToday = 0;
+			}
+			if (powerlasttime.getHours() != powercurrenttime.getHours()) {
+				powercumulativeHour = 0;
 			}
 			// caluclate cumlative power used in KWh
 			var duration = (powercurrenttime - powerlasttime) / 1000.0;
 			var powerused = parseInt(message, 10) * (duration / 3600.0) / 1000.0; // convert to KWh
-			powercumulative += powerused;
+			powercumulativeToday += powerused;
+			powercumulativeHour += powerused;
 			// console.log("duration ", duration, "powerused ", powerused, "cumulative ", powercumulative);
-  			io.sockets.emit('data', { topic: "powercumulative", value: powercumulative.toFixed(3) });
+  			io.sockets.emit('data', { topic: "powercumulativeToday", value: powercumulativeToday.toFixed(3) });
+  			io.sockets.emit('data', { topic: "powercumulativeHour", value: powercumulativeHour.toFixed(3) });
 			powerlasttime = powercurrenttime;
 		}
   	});

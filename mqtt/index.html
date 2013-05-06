@@ -4,16 +4,7 @@
 <title>
 Charlestown Power
 </title>
-<style>
-body
-{
-background-color:AntiqueWhite;
-}
-table, th, td
-{
-border: 1px solid #CABFAF;
-}
-</style>
+<link type="text/css" rel="stylesheet" href="/app.css" media="all">
 </head>
 <body>
 Current total current power consumption <span id="sensors/power/0"></span>
@@ -34,7 +25,9 @@ Current total current power consumption <span id="sensors/power/0"></span>
 <table id="myTablePressure"></table>
 <table id="myTableCO"></table>
 <P>
-Total power consumed since start <span id="powercumulative"></span>
+Total power today <span id="powercumulativeToday"></span> KWh
+<P>
+Total power this hour <span id="powercumulativeHour"></span> KWh
 <P>
 <canvas id="mycanvas" width="500" height="100"></canvas>
 <P>

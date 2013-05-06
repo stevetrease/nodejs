@@ -5,11 +5,11 @@ var app = express()
   , io = require('socket.io').listen(server, {'log level': 1});
 var fs = require('fs');
 
+// service settings file
+var config = require('./config.json');
 
 
-
-var scriptStartDate = new Date();
-
+var connectionCount = 0;
 
 function timeSince(ts){
     now = new Date();
@@ -58,11 +58,13 @@ app.get('/hello.txt', function(req, res){
 });
 app.get('/app.css', function (req, res) {
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	res.sendfile(__dirname + '/app.css');  
+	res.sendfile(__dirname + '/app.css');
 });
 app.get('/stats', function(req, res){
+	res.send(connectionCount +  " clients connected");
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	res.send(timeSince(scriptStartDate));
+	console.log('This process is pid ' + process.pid + " with an uptime of " + process.uptime());
+	console.log('Running on ' + process.platform + ' (' + process.arch + ')');
 });
 app.get('/', function(req, res) {
 	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
@@ -86,14 +88,19 @@ console.log('listening on port 8500');
 
 
 io.sockets.on('connection', function (socket) {
+	connectionCount++;
+});
+io.sockets.on('disconnet', function (socket) {
+	connectionCount--;
 });
 
 
 // subscribe to MQTT
 var mqtt = require('mqtt');
-var client = mqtt.createClient(1883, 'localhost', function(err, client) {
+var client = mqtt.createClient(1883, config.mqtt.host, function(err, client) {
 		keepalive: 1000
 });
+console.log('connecting to mqtt on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
 // global variables for tracking cumulative power usage
 var powercumulativeToday = 0;
 var powercumulativeHour = 0;
@@ -101,6 +108,7 @@ var powerlasttime = new Date(); // UNIX time in ms
 
 client.on('connect', function() {
 	client.subscribe('sensors/+/+');
+	console.log('subscribing to sensors/+/+ on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
 
   	client.on('message', function(topic, message) {
 		// console.log('topic: ' + topic + ' payload: ' + message);

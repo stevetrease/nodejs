@@ -60,8 +60,8 @@ mqttclient.on('connect', function() {
 			redisClient.set("powercumulativeToday", powercumulativeToday);
 			redisClient.set("powercumulativeHour", powercumulativeHour);
 			// console.log("duration ", duration, "period ", powerused, "today ", powercumulativeToday, "hour ", powercumulativeHour);
-			mqttclient.publish("sensors/power/0powercumulativeToday", powercumulativeToday.toString());
-			mqttclient.publish("sensors/power/0powercumulativeHour", powercumulativeHour.toString());
+			mqttclient.publish("sensors/power/0powercumulativeToday", powercumulativeToday.toFixed(2));
+			mqttclient.publish("sensors/power/0powercumulativeHour", powercumulativeHour.toFixed(2));
 			powerlasttime = powercurrenttime;
 		}
   	});

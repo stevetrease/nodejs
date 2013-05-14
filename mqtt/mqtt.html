@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>
+MQTT
+</title>
+<link type="text/css" rel="stylesheet" href="/app.css" media="all">
+</head>
+<body>
+<table id="messagetable"></table>
+<P>
+<div id="time" style="font-size:x-small"></div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
+<script>
+	ElementExists = function(id) {
+    		return !!document.getElementById(id);
+	};
+
+	var socket = io.connect("http://192.168.1.103:8500/mqtt");
+	socket.on('data', function(data) { 
+		// console.log("Message received " + data.topic + " of " + data.value);
+
+		// check the target topic exisits & if not create a target table entry
+		if (!ElementExists (data.topic)) {
+			// console.log("Creating target " + data.topic);
+			var table=document.getElementById("messagetable");
+			var row=table.insertRow(0);
+			var cell=row.insertCell(0);
+			cell.id = data.topic;
+			var cell=row.insertCell(0);
+			cell.id = data.topic + "name";
+			document.getElementById(data.topic).style.textAlign="right"
+			document.getElementById(data.topic + "name").innerHTML= data.topic;
+		}
+		// new we know there is a target, update it
+		// console.log("Setting target " + data.topic + " to " + data.value);
+		document.getElementById(data.topic).innerHTML= data.value;
+
+		// print the time the refresh happened
+		var dt = new Date(); 
+		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
+	});
+</script>
+</body>
+</html>
+

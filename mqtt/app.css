@@ -10,6 +10,8 @@ p {
 
 table, th, td {
 	border: 1px solid #CABFAF;
+	border-collapse: collapse;
+	vertical-align: top;
 }
 
 

@@ -42,6 +42,18 @@ app.get('/mqtt', function(req, res) {
     		res.end(data);
   	});
 });
+app.get('/mqttstats', function(req, res) {
+	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
+	fs.readFile(__dirname + '/mqttstats.html',
+  		function (err, data) {
+    		if (err) {
+      			res.writeHead(500);
+      			return res.end('Error loading mqttstats.html');
+    		}
+    		res.writeHead(200);
+    		res.end(data);
+  	});
+});
 
 
 
@@ -78,6 +90,24 @@ io.of('/mqtt').on('connection', function (socket) {
 
 	mqttclient.on('connect', function() {
 		mqttclient.subscribe('#');
+		// console.log('subscribing to everything on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
+
+  		mqttclient.on('message', function(topic, message) {
+			// console.log('emitting topic: ' + topic + ' payload: ' + message);
+  			socket.emit('data', { topic: topic, value: message });
+  		});
+  	});
+});
+
+io.of('/mqttstats').on('connection', function (socket) {
+	// subscribe to MQTT
+	var mqtt = require('mqtt');
+	var mqttclient = mqtt.createClient(1883, config.mqtt.host, function(err, client) {
+			keepalive: 1000
+	});
+
+	mqttclient.on('connect', function() {
+		mqttclient.subscribe('$SYS/#');
 		// console.log('subscribing to everything on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
 
   		mqttclient.on('message', function(topic, message) {

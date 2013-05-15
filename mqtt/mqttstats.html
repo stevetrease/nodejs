@@ -2,14 +2,12 @@
 <html>
 <head>
 <title>
-MQTT
+MQTT Server Stats
 </title>
 <link type="text/css" rel="stylesheet" href="/app.css" media="all">
 </head>
 <body>
-<table id="messagetable">
-<tr><th>Topic</th><th>Value</th></tr>
-</table>
+<table id="messagetable"><tr><th>Topic</th><th>Value</th></tr></table>
 <P>
 <div id="time" style="font-size:x-small"></div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
@@ -19,7 +17,7 @@ MQTT
     		return !!document.getElementById(id);
 	};
 
-	var socket = io.connect("http://192.168.1.103:8500/mqtt");
+	var socket = io.connect("http://192.168.1.103:8500/mqttstats");
 	socket.on('data', function(data) { 
 		// console.log("Message received " + data.topic + " of " + data.value);
 
@@ -29,17 +27,16 @@ MQTT
 			var table=document.getElementById("messagetable");
 
 			// itertate through table to find out where to insert row in alpha order
-			var count = 1;
-			if (document.getElementById("messagetable").rows.length != 1) {
-				for (i = 1; i < document.getElementById("messagetable").rows.length; i++) {
-					var row = table.rows[i];
-					var col = row.cells[0];
-					if (col.firstChild.nodeValue < data.topic) {
-						count++;
-					}
-				}
-			} 
-
+                        var count = 1;
+                        if (document.getElementById("messagetable").rows.length != 1) {
+                                for (i = 1; i < document.getElementById("messagetable").rows.length; i++) {
+                                        var row = table.rows[i];
+                                        var col = row.cells[0];
+                                        if (col.firstChild.nodeValue < data.topic) {
+                                                count++;
+                                        }
+                                }
+                        } 
 
 			var row=table.insertRow(count);
 			var cell=row.insertCell(0);

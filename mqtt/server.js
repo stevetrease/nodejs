@@ -9,51 +9,37 @@ var fs = require('fs');
 var config = require('./config.json');
 
 
+//
+//	A whole load of very clumsy routing for static pages and js 
+//
+//	First of all log all connections
+app.use(function(req, res, next){
+	console.log('one connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
+  	next();
+});
+app.get('/smoothie.js', function (req, res) {
+	res.sendfile(__dirname + '/pages/js/smoothie.js');
+});
+app.get('/jquery.min.js', function (req, res) {
+	res.sendfile(__dirname + '/pages/js/jquery.min.js');
+});
 app.get('/app.css', function (req, res) {
-	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	res.sendfile(__dirname + '/app.css');
+	res.sendfile(__dirname + '/pages/app.css');
+});
+app.get('/sensors', function(req, res) {
+	res.sendfile(__dirname + '/pages/sensors.html');
+});
+app.get('/mqtt', function(req, res) {
+	res.sendfile(__dirname + '/pages/mqtt.html');
+});
+app.get('/mqttstats', function(req, res) {
+	res.sendFile(__dirname + '/pages/mqttstats.html');
 });
 app.get('/stats', function(req, res){
-	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
 	console.log('This process is pid ' + process.pid + " with an uptime of " + process.uptime());
 	console.log('Running on ' + process.platform + ' (' + process.arch + ')');
 });
-app.get('/sensors', function(req, res) {
-	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	fs.readFile(__dirname + '/sensors.html',
-  		function (err, data) {
-    		if (err) {
-      			res.writeHead(500);
-      			return res.end('Error loading sensors.html');
-    		}
-    		res.writeHead(200);
-    		res.end(data);
-  	});
-});
-app.get('/mqtt', function(req, res) {
-	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	fs.readFile(__dirname + '/mqtt.html',
-  		function (err, data) {
-    		if (err) {
-      			res.writeHead(500);
-      			return res.end('Error loading mqtt.html');
-    		}
-    		res.writeHead(200);
-    		res.end(data);
-  	});
-});
-app.get('/mqttstats', function(req, res) {
-	console.log('connection %j %s %s',  req.connection.remoteAddress, req.method, req.url);
-	fs.readFile(__dirname + '/mqttstats.html',
-  		function (err, data) {
-    		if (err) {
-      			res.writeHead(500);
-      			return res.end('Error loading mqttstats.html');
-    		}
-    		res.writeHead(200);
-    		res.end(data);
-  	});
-});
+
 
 
 

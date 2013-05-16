@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>
+Charlestown Power
+</title>
+<link type="text/css" rel="stylesheet" href="/app.css" media="all">
+</head>
+<body>
+<big><big><big>
+<span id="sensors/power/0"> </span>W
+</big></big></big>
+<P>
+<span id="sensors/power/0powercumulativeToday"></span> KWh used today
+<br>
+<span id="sensors/power/0powercumulativeHour"></span> KWh this hour
+<P>
+<canvas id="mycanvas" width="500" height="150"></canvas>
+<P>
+<table id="myTablePower"></table>
+<table id="myTableTemp"></table>
+<table id="myTableHumidity"></table>
+<table id="myTableNO2"></table>
+<table id="myTablePressure"></table>
+<table id="myTableCO"></table>
+<P>
+<div id="time" style="font-size:x-small"></div>
+<script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://www.trease.eu:8500/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.trease.eu:8500/smoothie.js"></script>
+<script>
+	ElementExists = function(id) {
+    		return !!document.getElementById(id);
+	};
+	BeginsWith = function(needle, haystack){
+		return (haystack.substr(0, needle.length) == needle);
+	}
+
+
+	var smoothie = new SmoothieChart({millisPerPixel:1000,timestampFormatter:SmoothieChart.timeFormatter,minValue:0});
+	var line1 = new TimeSeries();
+	smoothie.streamTo(document.getElementById("mycanvas"));
+	smoothie.addTimeSeries(line1);
+
+	var socket = io.connect("http://192.168.1.103:8500/sensors");
+	socket.on('data', function(data) { 
+		// console.log("Message received " + data.topic + " of " + data.value);
+
+		// check the target topic exisits & if not create a target table entry
+		if (!ElementExists (data.topic)) {
+			// console.log("Creating target " + data.topic);
+			var topictag = "sensors/power/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTablePower");
+			}
+			var topictag = "sensors/temperature/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableTemp");
+			}
+			var topictag = "sensors/humidity/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableHumidity");
+			}
+			var topictag = "sensors/co/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableCO");
+			}
+			var topictag = "sensors/no2/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableNO2");
+			}
+			var topictag = "sensors/pressure/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTablePressure");
+			}
+
+
+			var row=table.insertRow(0);
+			var cell=row.insertCell(0);
+			cell.id = data.topic;
+			var cell=row.insertCell(0);
+			cell.id = data.topic + "name";
+			document.getElementById(data.topic).style.textAlign="right"
+			document.getElementById(data.topic + "name").innerHTML= data.topic.slice(data.topic.lastIndexOf('/')+1);
+		}
+		// new we know there is a target, update it
+		// console.log("Setting target " + data.topic + " to " + data.value);
+		document.getElementById(data.topic).innerHTML= data.value;
+
+		// if data topic is 0 it is the overall power consumption, so update the graph
+	 	if (data.topic == "sensors/power/0") {	
+			line1.append (new Date().getTime(), data.value);
+		}
+
+		// print the time the refresh happened
+		var dt = new Date(); 
+		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
+	});
+</script>
+</body>
+</html>
+

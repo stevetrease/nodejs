@@ -16,11 +16,6 @@ var config = require('./config.json');
 app.use(express.logger());
 app.use(express.compress());
 
-app.get('/stats', function(req, res, next){
-	console.log('This process is pid ' + process.pid + " with an uptime of " + process.uptime());
-	console.log('Running on ' + process.platform + ' (' + process.arch + ')');
-});
-
 app.use(express.static(__dirname + '/pages'));
 app.use(express.static(__dirname + '/pages/js'));
 
@@ -31,10 +26,8 @@ app.use(function(req, res, next){
 
 
 
-
 server.listen(8500);
 console.log('listening on port 8500');
-
 
 
 
@@ -84,7 +77,7 @@ io.of('/mqttstats').on('connection', function (socket) {
 
 	mqttclient.on('connect', function() {
 		mqttclient.subscribe('$SYS/#');
-		// console.log('subscribing to everything on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
+		// console.log('subscribing to $SYS on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
 
   		mqttclient.on('message', function(topic, message) {
 			// console.log('emitting topic: ' + topic + ' payload: ' + message);

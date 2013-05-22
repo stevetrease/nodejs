@@ -31,13 +31,15 @@ console.log('listening on port 8500');
 
 
 
+
+
+
 io.of('/sensors').on('connection', function (socket) {
 	// subscribe to MQTT
 	var mqtt = require('mqtt');
 	var mqttclient = mqtt.createClient(1883, config.mqtt.host, function(err, client) {
-			keepalive: 1000
+		keepalive: 1000
 	});
-
 	mqttclient.on('connect', function() {
 		mqttclient.subscribe('sensors/+/+');
 		mqttclient.subscribe('sensors/power/+/cumulative/+');
@@ -54,9 +56,8 @@ io.of('/mqtt').on('connection', function (socket) {
 	// subscribe to MQTT
 	var mqtt = require('mqtt');
 	var mqttclient = mqtt.createClient(1883, config.mqtt.host, function(err, client) {
-			keepalive: 1000
+		keepalive: 1000
 	});
-
 	mqttclient.on('connect', function() {
 		mqttclient.subscribe('#');
 		// console.log('subscribing to everything on ' + config.mqtt.host + '(' + config.mqtt.port + ')');

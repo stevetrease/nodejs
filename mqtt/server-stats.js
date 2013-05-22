@@ -16,28 +16,16 @@ function log(type) {
     }
 }
 
-// var powerlasttime = new Date(); // UNIX time in ms
-
-// get last stored values from Redis
-// var execSync = require('execSync');
-// var result = execSync.exec('redis-cli get powercumulativeHour');
-// var powercumulativeHour = parseFloat(result.stdout);
-// var result = execSync.exec('redis-cli get powercumulativeToday');
-// var powercumulativeToday = parseFloat(result.stdout);
-
-// var records_hourly = new Array();
-// var records_daily = new Array();
-// var records_lasttime = new Array();
-// var records_hourly = {};
+var savecount = 0;
 var records_hourly = {};
 var records_daily =  {};
 var records_lasttime = {};
 
+// get last stored values from Redis
 var execSync = require('execSync');
 var result = execSync.exec('redis-cli get records_hourly');
 records_hourly = JSON.parse(result.stdout);
 console.log("Loading hourly records from redis...");
-
 result = execSync.exec('redis-cli get records_daily');
 records_daily = JSON.parse(result.stdout);
 console.log("Loading daily records from redis...");
@@ -74,11 +62,11 @@ mqttclient.on('connect', function() {
 
 		// different hour?
 		if (records_lasttime[topic].getHours() != powercurrenttime.getHours()) {
-			powercumulativeHour = 0;
+			records_hourly[topic] = 0;
 		}
 		// different day?
 		if (records_lasttime[topic].getDate() != powercurrenttime.getDate()) {
-			powercumulativeDay = 0;
+			records_daily[topic] = 0;
 		}
 		// calculate cumulative power used in KWh
 		var duration = (powercurrenttime - records_lasttime[topic]) / 1000.0;
@@ -86,13 +74,18 @@ mqttclient.on('connect', function() {
 		records_lasttime[topic] = powercurrenttime;
 		records_hourly[topic] += powerused;
 		records_daily[topic] += powerused;
-		console.log("topic:", topic, " duration ", duration, " period ", powerused, " hour ", records_hourly[topic], "daily ", records_daily[topic]);
+		// console.log("topic:", topic, " duration ", duration, " period ", powerused, " hour ", records_hourly[topic], "daily ", records_daily[topic]);
 
+		// publish new data
 		mqttclient.publish(topic + "/cumulative/hour", records_hourly[topic].toFixed(2));
 		mqttclient.publish(topic + "/cumulative/daily", records_daily[topic].toFixed(2));
 
-		redisClient.set("records_hourly", JSON.stringify(records_hourly));
-		redisClient.set("records_daily", JSON.stringify(records_daily));
-		// console.log( JSON.stringify(records_hourly));
+		// save to redis
+		if (savecount++ > 24) {
+			savecount = 0;
+			redisClient.set("records_hourly", JSON.stringify(records_hourly));
+			redisClient.set("records_daily", JSON.stringify(records_daily));
+			// console.log("saving to redis...");
+		}
   	});
 });

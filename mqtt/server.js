@@ -25,12 +25,8 @@ app.use(function(req, res, next){
 });
 
 
-
 server.listen(8500);
 console.log('listening on port 8500');
-
-
-
 
 
 
@@ -42,7 +38,7 @@ io.of('/sensors').on('connection', function (socket) {
 	});
 	mqttclient.on('connect', function() {
 		mqttclient.subscribe('sensors/+/+');
-		mqttclient.subscribe('sensors/power/+/cumulative/+');
+		mqttclient.subscribe('sensors/power/0/cumulative/+');
 		// console.log('subscribing to sensors/+/+ on ' + config.mqtt.host + '(' + config.mqtt.port + ')');
 
   		mqttclient.on('message', function(topic, message) {

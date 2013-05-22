@@ -11,20 +11,48 @@ Charlestown Sensors
 <span id="sensors/power/0"> </span>W
 </big></big></big>
 <P>
-<span id="sensors/power/0/cumulative/today"></span> KWh used today
+<span id="sensors/power/0/cumulative/daily"></span> KWh used today
 <br>
 <span id="sensors/power/0/cumulative/hour"></span> KWh this hour
 <P>
 <canvas id="mycanvas" width="500" height="150"></canvas>
 <P>
-<table id="myTablePower"></table>
-<table id="myTableTemp"></table>
-<table id="myTableHumidity"></table>
-<table id="myTableNO2"></table>
-<table id="myTablePressure"></table>
-<table id="myTableCO"></table>
+<table style="width:60%">
+	<tr>
+		<td style="width:33%">
+		<table id="myTablePower" style="width:100%"></table>
+		</td>
+		<td style="width:33%">
+		</td>
+		<td style="width:33%">
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<table id="myTableTemp" style="width:100%"></table>
+		</td>
+		<td>
+		<table id="myTableHumidity" style="width:100%"></table>
+		</td>
+		<td>
+		<table id="myTablePressure" style="width:100%"></table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<table id="myTableNO2" style="width:100%"></table>
+		</td>
+		<td>
+		<table id="myTableCO" style="width:100%"></table>
+		</td>
+		<td>
+		</td>
+	</tr>
+</table>
 <P>
+
 <div id="time" style="font-size:x-small"></div>
+
 <script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="http://www.trease.eu:8500/jquery.min.js"></script>
 <script type="text/javascript" src="http://www.trease.eu:8500/smoothie.js"></script>
@@ -81,7 +109,10 @@ Charlestown Sensors
 			var cell=row.insertCell(0);
 			cell.id = data.topic + "name";
 			document.getElementById(data.topic).style.textAlign="right"
+			document.getElementById(data.topic).style.width="25%"
 			document.getElementById(data.topic + "name").innerHTML= data.topic.slice(data.topic.lastIndexOf('/')+1);
+			document.getElementById(data.topic + "name").style.textAlign="left"
+			document.getElementById(data.topic + "name").style.width="75%"
 		}
 		// new we know there is a target, update it
 		// console.log("Setting target " + data.topic + " to " + data.value);

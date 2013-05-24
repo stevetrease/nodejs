@@ -5,6 +5,9 @@ var app = express()
   , io = require('socket.io').listen(server, {'log level': 2});
 var fs = require('fs');
 
+// io.set("transports", ["xhr-polling", "jsonp-polling"]);
+
+
 // service settings file
 var config = require('./config.json');
 
@@ -21,7 +24,7 @@ app.use(express.static(__dirname + '/pages/js'));
 
 // and finally a 404
 app.use(function(req, res, next){
-  res.send(404, 'Sorry cant find that!');
+	res.send(404, 'Sorry cant find that!');
 });
 
 

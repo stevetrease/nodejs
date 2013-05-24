@@ -1,26 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>
-Index
-</title>
+    <title>Index</title>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 </head>
 <body>
-<div id="example">
-     <ul>
-         <li><a href="sensors.html"><span>Sensors</span></a></li>
-         <li><a href="mqtt.html"><span>MQTT</span></a></li>
-         <li><a href="mqttstats.html"><span>MQTT Broker Stats</span></a></li>
-     </ul>
+<P>
+<P>
+<div class="container">
+	<div class="row">
+	    <div class="span3">
+			<big><big><big>
+			<span id="sensors/power/0"> </span>W
+			</big></big></big>
+			<P>
+			<span id="sensors/power/0/cumulative/daily"></span> KWh used today
+			<br>
+			<span id="sensors/power/0/cumulative/hour"></span> KWh this hour
+	    </div>
+	    <div class="span9">
+	    	<canvas id="mycanvas" width="500" height="150"></canvas>
+	    </div>
+	</div>
+	    
+    <div class="row">
+    	<div class="span3">
+	    	<table id="myTableTemp" class="table table-striped" style="width:100%"><caption>Temperatures</caption></table>    
+	    </div>
+	    <div class="span3">
+	    	<table id="myTableHumidity" class="table table-striped" style="width:100%"><caption>Humidity</caption></table>
+	    </div>
+	    <div class="span3">
+	   		<table id="myTablePower" class="table table-striped" style="width:100%"><caption>Power</caption></table>   
+	    </div>
+	    <div class="span3">
+	    </div>
+	</div>
+	
+	<div class="row">
+	    <div class="span3">
+			<table id="myTableNO2" class="table table-striped" style="width:100%"><caption>NO2</caption></table>	
+	    </div>
+	    <div class="span3">
+	    	<table id="myTableCO" class="table table-striped" style="width:100%"><caption>CO</caption></table>	    
+	    </div>
+	    <div class="span3">
+	    		
+	    </div>
+	    <div class="span3">  
+	    	<table id="myTablePressure" class="table table-striped" style="width:100%"><caption>Pressure</caption></table>
+	    </div>
+	</div>
+	<div class="row">
+	    <div class="span12">
+			<div id="time" style="font-size:x-small"></div>
+	    </div>
+	</div>
 </div>
-<link type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="Stylesheet" />
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+ 
+    
+<script src="http://www.trease.eu:8500/socket.io/socket.io.js"></script>    
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://www.trease.eu:8500/smoothie.js"></script>
+        
 <script>
-$(function() {
-  	$("#example").tabs();
-});
+	ElementExists = function(id) {
+    		return !!document.getElementById(id);
+	};
+	BeginsWith = function(needle, haystack){
+		return (haystack.substr(0, needle.length) == needle);
+	}
+
+
+	var smoothie = new SmoothieChart({millisPerPixel:1000,timestampFormatter:SmoothieChart.timeFormatter,minValue:0});
+	var line1 = new TimeSeries();
+	smoothie.streamTo(document.getElementById("mycanvas"));
+	smoothie.addTimeSeries(line1);
+
+	var socket = io.connect("http://192.168.1.103:8500/sensors");
+	socket.on('data', function(data) { 
+		// console.log("Message received " + data.topic + " of " + data.value);
+
+		// check the target topic exisits & if not create a target table entry
+		if (!ElementExists (data.topic)) {
+			// console.log("Creating target " + data.topic);
+			var topictag = "sensors/power/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTablePower");
+			}
+			var topictag = "sensors/temperature/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableTemp");
+			}
+			var topictag = "sensors/humidity/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableHumidity");
+			}
+			var topictag = "sensors/co/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableCO");
+			}
+			var topictag = "sensors/no2/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTableNO2");
+			}
+			var topictag = "sensors/pressure/";
+			if (data.topic.substring(0,topictag.length) == topictag) {
+				var table=document.getElementById("myTablePressure");
+			}
+
+
+			var row=table.insertRow(0);
+			var cell=row.insertCell(0);
+			cell.id = data.topic;
+			var cell=row.insertCell(0);
+			cell.id = data.topic + "name";
+			document.getElementById(data.topic).style.textAlign="right"
+			document.getElementById(data.topic).style.width="25%"
+			document.getElementById(data.topic + "name").innerHTML= data.topic.slice(data.topic.lastIndexOf('/')+1);
+			document.getElementById(data.topic + "name").style.textAlign="left"
+			document.getElementById(data.topic + "name").style.width="75%"
+		}
+		// new we know there is a target, update it
+		// console.log("Setting target " + data.topic + " to " + data.value);
+		document.getElementById(data.topic).innerHTML= data.value;
+
+		// if data topic is 0 it is the overall power consumption, so update the graph and the counter at the top of the page
+	 	// if (data.topic == "sensors/power/0") {	
+			// line1.append (new Date().getTime(), data.value);
+			// document.getElementById("sensors/power/00").innerHTML= data.value;
+		// }
+
+		// print the time the refresh happened
+		var dt = new Date(); 
+		document.getElementById("time").innerHTML= dt.toLocaleTimeString();
+	});
 </script>
+    
 </body>
 </html>
-

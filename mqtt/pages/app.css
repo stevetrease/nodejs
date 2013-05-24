@@ -9,13 +9,18 @@ p {
 }
 
 table, th, td {
-	border: 1px solid #CABFAF;
 	border-spacing: 3px;
 	table-layout:fixed;
-	border-collapse: collapse;
+	border-collapse: separate;
 	vertical-align: top;
 }
-
+#myTablePower, #myTableTemp, #myTableHumidity, #myTableNO2, #myTableCO {
+	border: 1px solid AntiqueWhite;
+	border-spacing: 3px;
+	table-layout: fixed;
+	vertical-align: top;
+	background-color: #CABFAF;
+}
 
 .clear {
   clear: both;
